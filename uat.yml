@@ -1,0 +1,182 @@
+name: UAT CI/CD
+
+on:
+  workflow_call:
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    outputs:
+      deployment_version: ${{ steps.tagging.outputs.new_tag }}
+    steps:
+    - name: Post to a Slack channel
+      id: slack
+      uses: slackapi/slack-github-action@v1.14.0
+      with:
+        channel-id: ${{ secrets.CICD_UAT_SLACK_CHANNEL_ID }}
+        slack-message: ':rocket: `${{ github.actor }}` triggered new CI run on `${{ github.event.repository.name }}-uat`: https://github.com/seated-tech/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }} Waiting for build details :clock1: ....'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+    - name: Set up JDK 13
+      uses: actions/setup-java@v1
+      with:
+        java-version: 13.0.2
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+    - name: Unit Test
+      id: test
+      env:
+        GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
+        GITHUB_USER_TOKEN: ${{ secrets.GH_TOKEN }}
+        ENVIRONMENT_ID: uat
+      run: mvn --settings settings.xml test
+    # UAT tag will be generated when PR is created against master, X.Y.Z-alpha.t
+    - name: Tagging
+      id: tagging
+      uses: anothrNick/github-tag-action@1.36.0
+      env:
+        RELEASE_BRANCHES: release
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        DEFAULT_BUMP: patch
+        WITH_V: true
+        PRERELEASE_SUFFIX: alpha
+    - name: Get ECR Login
+      id: get_ecr_login
+      run: echo ::set-output name=ecr_login::\"$(aws ecr get-login-password)\"
+    - name: ECR Push
+      id: push
+      env:
+        GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
+        GITHUB_USER_TOKEN: ${{ secrets.GH_TOKEN }}
+        ENVIRONMENT_ID: uat
+      run: |
+        mvn -U clean compile jib:build \
+        --settings settings.xml \
+        --file pom.xml \
+        -Djib.from.auth.username=AWS \
+        -Djib.from.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
+        -Djib.to.auth.username=AWS \
+        -Djib.to.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
+        -Djib.to.tags=${{ steps.tagging.outputs.new_tag }}
+
+  Notification:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Send Slack Message
+        id: slack
+        uses: slackapi/slack-github-action@v1.15.0
+        with:
+          payload: "{\"repo_name\": \"${{ github.repository }}\", \"branch_ref\": \"${{ github.ref }}\", \"workflow_run_id\": \"${{ github.run_id }}\", \"version_to_deploy\": \"${{ needs.Build.outputs.deployment_version }}\", \"commit_sha\": \"${{ github.sha }}\", \"actor\": \"${{ github.actor }}\", \"env\": \"UAT\"}"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_UAT }}
+
+  Primary_Deployment:
+    runs-on: ubuntu-latest
+    needs: Build
+    environment:
+      name: UAT
+      url: https://console.aws.amazon.com/ecs/home?region=us-east-1#/clusters/uat/services/${{ github.event.repository.name }}/deployments
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition --task-definition ${{ github.event.repository.name }}-uat --query taskDefinition > task-definition.json
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        container-name: ${{ github.event.repository.name }}-uat
+        image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ github.event.repository.name }}-uat:${{ needs.Build.outputs.deployment_version }}
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ github.event.repository.name }}
+        cluster: uat
+        wait-for-service-stability: true
+
+  Secondary_Deployment:
+    runs-on: ubuntu-latest
+    needs: Build
+    environment:
+      name: UAT
+      url: https://console.aws.amazon.com/ecs/home?region=us-west-2#/clusters/uat/services/${{ github.event.repository.name }}/deployments
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.SEATED_AWS_SECONDARY_REGION }}
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ github.event.repository.name }}-uat --query taskDefinition > task-definition.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ github.event.repository.name }}-uat
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ github.event.repository.name }}-uat:${{ needs.Build.outputs.deployment_version }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ github.event.repository.name }}
+          cluster: uat
+          wait-for-service-stability: true
+
+  Deployment_Success:
+    runs-on: ubuntu-latest
+    needs: [Build, Primary_Deployment, Secondary_Deployment]
+    steps:
+      - name: Post to a Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.14.0
+        with:
+          channel-id: ${{ secrets.CICD_UAT_SLACK_CHANNEL_ID }}
+          slack-message: ':rocket: `${{ github.actor }}`: `${{ github.event.repository.name }}-uat` deployment succeeded in both regions :white_check_mark: with version `${{ needs.Build.outputs.deployment_version }}`'
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+  Deployment_Failure_Or_Rejection:
+    runs-on: ubuntu-latest
+    needs: [Build, Primary_Deployment, Secondary_Deployment]
+    if: ${{ failure() }}
+    steps:
+      - name: Deployment Failure/Rejection Notification
+        id: slack_notify_primary_failure
+        uses: slackapi/slack-github-action@v1.14.0
+        with:
+          channel-id: ${{ secrets.CICD_UAT_SLACK_CHANNEL_ID }}
+          slack-message: ':skull: `${{ github.actor }}`: Deployment is rejected or failed in some region for `${{ github.event.repository.name }}-uat`, version `${{ needs.Build.outputs.deployment_version }}`'
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
