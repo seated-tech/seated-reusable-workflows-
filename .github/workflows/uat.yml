@@ -2,6 +2,27 @@ name: UAT CI/CD
 
 on:
   workflow_call:
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      GH_USERNAME:
+        required: true
+      GH_TOKEN:
+        required: true
+      SEATED_AWS_PRIMARY_REGION:
+        required: true
+      SEATED_AWS_SECONDARY_REGION:
+        required: true
+      CICD_UAT_SLACK_CHANNEL_ID:
+        required: true
+      SLACK_WEBHOOK_URL_UAT:
+        required: true
+      SLACK_BOT_TOKEN:
+        required: true
 
 jobs:
   Build:
