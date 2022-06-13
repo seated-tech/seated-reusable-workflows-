@@ -31,13 +31,12 @@ jobs:
       deployment_version: ${{ steps.tagging.outputs.new_tag }}
     steps:
     - name: Post to a Slack channel
-      id: slack
-      uses: slackapi/slack-github-action@v1.14.0
+      id: slack_build
+      uses: fjogeleit/http-request-action@v1
       with:
-        channel-id: ${{ secrets.CICD_UAT_SLACK_CHANNEL_ID }}
-        slack-message: ':rocket: `${{ github.actor }}` triggered new CI run on `${{ github.event.repository.name }}-uat`: https://github.com/seated-tech/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }} Waiting for build details :clock1: ....'
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        url: "https://cyberdog.seatedapp.io/deployment/build"
+        method: "POST"
+        data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}"}'
     - name: Checkout
       uses: actions/checkout@v2
       with:
