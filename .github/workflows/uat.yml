@@ -34,7 +34,7 @@ jobs:
       id: slack_build
       uses: fjogeleit/http-request-action@v1
       with:
-        url: "https://cyberdog.seatedapp.io/deployment/build"
+        url: "https://cyberdog.seatedapp.io/build/init"
         method: "POST"
         data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}"}, "reference": "${{ github.ref }}"'
     - name: Checkout
