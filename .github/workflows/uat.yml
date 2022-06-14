@@ -36,7 +36,7 @@ jobs:
       with:
         url: "https://cyberdog.seatedapp.io/deployment/build"
         method: "POST"
-        data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}"}'
+        data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}"}, "reference": "${{ github.ref }}"'
     - name: Checkout
       uses: actions/checkout@v2
       with:
