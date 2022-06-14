@@ -36,7 +36,7 @@ jobs:
       with:
         url: "https://cyberdog.seatedapp.io/build/init"
         method: "POST"
-        data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "reference": "${{ github.ref }}"}'
+        data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "reference": "${{ github.ref }}"}'
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -101,7 +101,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/awaits-approval"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}"}'
 
   Primary_Deployment:
     runs-on: ubuntu-latest
