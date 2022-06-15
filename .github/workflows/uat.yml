@@ -17,12 +17,6 @@ on:
         required: true
       SEATED_AWS_SECONDARY_REGION:
         required: true
-      CICD_UAT_SLACK_CHANNEL_ID:
-        required: true
-      SLACK_WEBHOOK_URL_UAT:
-        required: true
-      SLACK_BOT_TOKEN:
-        required: true
 
 jobs:
   Build:
