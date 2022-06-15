@@ -46,7 +46,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: 13.0.2
+        java-version: 13
         cache: 'maven'
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
