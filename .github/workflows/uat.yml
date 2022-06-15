@@ -189,30 +189,30 @@ jobs:
           cluster: uat
           wait-for-service-stability: true
 
-#  Deployment_Success:
-#    runs-on: ubuntu-latest
-#    needs: [Build, Primary_Deployment, Secondary_Deployment]
-#    steps:
-#      - name: Post to a Slack channel
-#        id: slack
-#        uses: slackapi/slack-github-action@v1.14.0
-#        with:
-#          channel-id: ${{ secrets.CICD_UAT_SLACK_CHANNEL_ID }}
-#          slack-message: ':rocket: `${{ github.actor }}`: `${{ github.event.repository.name }}-uat` deployment succeeded in both regions :white_check_mark: with version `${{ needs.Build.outputs.deployment_version }}`'
-#        env:
-#          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-#
-#  Deployment_Failure_Or_Rejection:
-#    runs-on: ubuntu-latest
-#    needs: [Build, Primary_Deployment, Secondary_Deployment]
-#    if: ${{ failure() }}
-#    steps:
-#      - name: Deployment Failure/Rejection Notification
-#        id: slack_notify_primary_failure
-#        uses: slackapi/slack-github-action@v1.14.0
-#        with:
-#          channel-id: ${{ secrets.CICD_UAT_SLACK_CHANNEL_ID }}
-#          slack-message: ':skull: `${{ github.actor }}`: Deployment is rejected or failed in some region for `${{ github.event.repository.name }}-uat`, version `${{ needs.Build.outputs.deployment_version }}`'
-#        env:
-#          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  Deployment_Success:
+    runs-on: ubuntu-latest
+    needs: [Primary_Deployment, Secondary_Deployment]
+    steps:
+      - name: Post to a Slack channel
+        id: slack_deployment_success
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: "https://cyberdog.seatedapp.io/deployment/success"
+          method: "POST"
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}"}'
+          preventFailureOnNoResponse: "true"
+
+  Deployment_Failure_Or_Rejection:
+    runs-on: ubuntu-latest
+    needs: [Primary_Deployment, Secondary_Deployment]
+    if: ${{ failure() }}
+    steps:
+      - name: Post to a Slack channel
+        id: slack_deployment_fail
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: "https://cyberdog.seatedapp.io/deployment/fail"
+          method: "POST"
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}"}'
+          preventFailureOnNoResponse: "true"
 
