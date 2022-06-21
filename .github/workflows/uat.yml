@@ -21,9 +21,6 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: ['13']
     outputs:
       deployment_version: ${{ steps.tagging.outputs.new_tag }}
     steps:
@@ -43,7 +40,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: ${{ matrix.java }}
+        java-version: '13.0.2'
         cache: 'maven'
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
