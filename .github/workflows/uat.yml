@@ -91,7 +91,7 @@ jobs:
         -Djib.to.tags=${{ steps.tagging.outputs.new_tag }}
     - name: ECR Push Vaadin
       if: ${{ inputs.vaadin }}
-      id: push
+      id: push_with_vaadin
       env:
         GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
         GITHUB_USER_TOKEN: ${{ secrets.GH_TOKEN }}
