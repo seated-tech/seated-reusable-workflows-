@@ -2,6 +2,10 @@ name: UAT CI/CD
 
 on:
   workflow_call:
+    inputs:
+      vaadin:
+        required: false
+        type: boolean
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -69,6 +73,7 @@ jobs:
       id: get_ecr_login
       run: echo ::set-output name=ecr_login::\"$(aws ecr get-login-password)\"
     - name: ECR Push
+      if: ${{ !inputs.vaadin }}
       id: push
       env:
         GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
@@ -83,6 +88,23 @@ jobs:
         -Djib.to.auth.username=AWS \
         -Djib.to.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
         -Djib.to.tags=${{ steps.tagging.outputs.new_tag }}
+    - name: ECR Push Vaadin
+      if: ${{ inputs.vaadin }}
+      id: push
+      env:
+        GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
+        GITHUB_USER_TOKEN: ${{ secrets.GH_TOKEN }}
+        ENVIRONMENT_ID: uat
+      run: |
+        mvn -U clean compile jib:build \
+        --settings settings.xml \
+        --file pom.xml \
+        -Djib.from.auth.username=AWS \
+        -Djib.from.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
+        -Djib.to.auth.username=AWS \
+        -Djib.to.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
+        -Djib.to.tags=${{ steps.tagging.outputs.new_tag }}
+        -Pproduction
 
   Build_Failure:
     runs-on: ubuntu-latest
