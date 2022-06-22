@@ -104,7 +104,7 @@ jobs:
         -Djib.from.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
         -Djib.to.auth.username=AWS \
         -Djib.to.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
-        -Djib.to.tags=${{ steps.tagging.outputs.new_tag }}
+        -Djib.to.tags=${{ steps.tagging.outputs.new_tag }} \
         -Pproduction
 
   Build_Failure:
