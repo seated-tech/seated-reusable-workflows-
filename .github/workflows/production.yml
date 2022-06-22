@@ -103,7 +103,8 @@ jobs:
           -Djib.from.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
           -Djib.to.auth.username=AWS \
           -Djib.to.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
-          -Djib.to.tags=${{ steps.tagging.outputs.tag }}
+          -Djib.to.tags=${{ steps.tagging.outputs.tag }} \
+          -Pproduction
 
   Build_Failure:
     runs-on: ubuntu-latest
