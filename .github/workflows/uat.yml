@@ -89,7 +89,6 @@ jobs:
         -Djib.to.auth.username=AWS \
         -Djib.to.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
         -Djib.to.tags=${{ steps.tagging.outputs.new_tag }} \
-        -Djib.container.labels=org.opencontainers.image.revision=${{ github.sha }},org.opencontainers.image.source=github.com/${{ github.repository }}
     - name: ECR Push Vaadin
       if: ${{ inputs.vaadin }}
       id: push_with_vaadin
@@ -106,7 +105,6 @@ jobs:
         -Djib.to.auth.username=AWS \
         -Djib.to.auth.password=${{ steps.get_ecr_login.outputs.ecr_login }} \
         -Djib.to.tags=${{ steps.tagging.outputs.new_tag }} \
-        -Djib.container.labels=org.opencontainers.image.revision=${{ github.sha }},org.opencontainers.image.source=github.com/${{ github.repository }} \
         -Pproduction
 
   Build_Failure:
