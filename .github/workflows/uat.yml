@@ -97,7 +97,7 @@ jobs:
         GITHUB_USER_TOKEN: ${{ secrets.GH_TOKEN }}
         ENVIRONMENT_ID: uat
       run: |
-        mvn -U clean compile jib:build \
+        export NODE_OPTIONS=--openssl-legacy-provider mvn -U clean compile jib:build \
         --settings settings.xml \
         --file pom.xml \
         -Djib.from.auth.username=AWS \
