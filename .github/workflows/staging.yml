@@ -74,9 +74,9 @@ jobs:
         DEFAULT_BUMP: patch
         WITH_V: true
         PRERELEASE_SUFFIX: beta
-    - name: Get ECR Login
+    - name: Get ECR Login & Save Login into State
       id: get_ecr_login
-      run: echo ::set-output name=ecr_login::\"$(aws ecr get-login-password)\"
+      run: echo name=ecr_login::\"$(aws ecr get-login-password)\" >> $GITHUB_OUTPUT
     - name: ECR Push
       if: ${{ !inputs.vaadin }}
       id: push
