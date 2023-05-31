@@ -75,7 +75,7 @@ jobs:
           WITH_V: true
       - name: Get ECR Login
         id: get_ecr_login
-        run: echo ::set-output name=ecr_login::\"$(aws ecr get-login-password)\"
+        run: echo name=ecr_login::\"$(aws ecr get-login-password)\" >> $GITHUB_OUTPUT
       - name: ECR Push
         if: ${{ !inputs.vaadin }}
         id: push
