@@ -108,7 +108,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          path: ${{ inputs.function_name }}
+          path: ./${{ inputs.function_name }}
       - name: Install dependencies
         uses: docker://lambci/lambda:build-python3.7
         with:
@@ -135,7 +135,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          path: ${{ inputs.function_name }}
+          path: ./${{ inputs.function_name }}
       - name: Install dependencies
         uses: docker://lambci/lambda:build-python3.7
         with:
