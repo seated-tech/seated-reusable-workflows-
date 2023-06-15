@@ -35,8 +35,8 @@ jobs:
           slack-message: >
             ${{
               github.ref == 'refs/heads/release' && 
-              ':lambda_2: *${{inputs.function_name}}* released a new version!' || 
-              ':lambda_2: *${{inputs.function_name}}-staging* released a new version!' 
+              ':lambda_2: Lambda function *${{inputs.function_name}}* released a new version!' || 
+              ':lambda_2: Lambda function *${{inputs.function_name}}-staging* released a new version!' 
             }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
