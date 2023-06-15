@@ -150,7 +150,7 @@ jobs:
           source: ${{ inputs.function_name }}/lambda_function.py
 
   Notify_Deploy_Success:
-    name: Post to a Slack channel
+    name: Alert Success
     needs: [ Deploy_Production, Deploy_Staging ]
     if: |
       always()
