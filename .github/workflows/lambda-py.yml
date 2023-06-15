@@ -104,9 +104,6 @@ jobs:
     needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
-    defaults:
-      run:
-        working-directory: ${{ inputs.function_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -114,10 +111,10 @@ jobs:
         uses: docker://lambci/lambda:build-python3.7
         with:
           entrypoint: pip
-          args: install -r requirements.txt --target .
+          args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
       - name: Bundle function with dependencies
         run: |
-          zip -r build.zip .
+          zip -r ${{ inputs.function_name }}/build.zip ${{ inputs.function_name }}
       - name: Deploy Production
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -125,16 +122,13 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}
-          zip_file: build.zip
+          zip_file: ${{ inputs.function_name }}/build.zip
 
   Deploy_Staging:
     name: Staging Deploy
     needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
-    defaults:
-      run:
-        working-directory: ${{ inputs.function_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -142,10 +136,10 @@ jobs:
         uses: docker://lambci/lambda:build-python3.7
         with:
           entrypoint: pip
-          args: install -r requirements.txt --target .
+          args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
       - name: Bundle function with dependencies
         run: |
-          zip -r build.zip .
+          zip -r ${{ inputs.function_name }}/build.zip ${{ inputs.function_name }}
       - name: Deploy Staging
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -153,7 +147,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}-staging
-          zip_file: build.zip
+          zip_file: ${{ inputs.function_name }}/build.zip
 
   Notify_Deploy_Success:
     name: Alert Success
