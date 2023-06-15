@@ -36,24 +36,28 @@ jobs:
           channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C04SW266W3S' }}
           payload: |
             {
-            	"blocks": [
-            		{
-            			"type": "context",
-            			"elements": [
-            				{
-            					"type": "image",
-            					"image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
-            					"alt_text": "avatar"
-            				},
-            				{
-            					"type": "mrkdwn",
-            					"text": "${{github.ref == 'refs/heads/release' && ':lambda_2: Lambda function *inputs.function_name* released a new version!' || ':lambda_2: Lambda function *inputs.function_name-staging* released a new version!' }}"
-            				}
-            			]
-            		}
-            	]
+            	"attachments": [
+                  {
+                    "color": "#ffc800",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "${{github.ref == 'refs/heads/release' && ':lambda_2: Lambda function *inputs.function_name* released a new version!' || ':lambda_2: Lambda function *inputs.function_name-staging* released a new version!' }}"
+                              }
+                          ]
+                      }
+            	    ]
+                  }
+                ]
             }
-          
 
   Tag_Production:
     name: Tag production build
