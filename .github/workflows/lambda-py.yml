@@ -106,7 +106,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark:"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
@@ -151,7 +151,7 @@ jobs:
 
   Notify_Deploy_Success:
     name: Alert Success
-    needs: [ Deploy_Production, Deploy_Staging ]
+    needs: [ Notify_Deploy_Start, Deploy_Production, Deploy_Staging ]
     if: |
       always()
       && contains(needs.*.result, 'success')
@@ -200,7 +200,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark:"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
@@ -219,7 +219,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "Deployment succeeded! :confetti_ball:`"
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{inputs.function_name}}${{ github.ref == 'refs/heads/release' && '' || '-staging' }}?tab=code|Primary> region:confetti_ball:`"
                               }
                           ]
                       }
