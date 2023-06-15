@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Slack
         uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C04SW266W3S' }}
           payload: |
@@ -51,8 +53,7 @@ jobs:
             		}
             	]
             }
-          env:
-            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          
 
   Tag_Production:
     name: Tag production build
