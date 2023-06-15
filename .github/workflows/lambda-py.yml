@@ -98,7 +98,7 @@ jobs:
           args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
       - name: Bundle function with dependencies
         run: |
-          zip -r ${{ inputs.function_name }}/build.zip ${{ inputs.function_name }}
+          zip -r ${{ inputs.function_name }}/build.zip ${{ inputs.function_name }}/*
       - name: Deploy Production
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -123,7 +123,7 @@ jobs:
           args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
       - name: Bundle function with dependencies
         run: |
-          zip -r ${{ inputs.function_name }}/build.zip .
+          zip -r ${{ inputs.function_name }}/build.zip ${{ inputs.function_name }}/*
       - name: Deploy Staging
         uses: appleboy/lambda-action@v0.1.9
         with:
