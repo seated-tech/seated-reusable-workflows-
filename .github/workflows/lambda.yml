@@ -36,8 +36,8 @@ jobs:
           ${{ github.ref == 'refs/heads/release' && \
           ':lambda_2: *${{ inputs.function_name }}* released a new version!' || \
           ':lambda_2: *${{ inputs.function_name }}-staging* released a new version!' }}
-    env:
-      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   Tag_Production:
     name: Tag production build
