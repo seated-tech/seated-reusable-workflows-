@@ -53,7 +53,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "${{github.actor}} triggered new deployment on Lambda function :lambda_2: `${{ inputs.function_name }}`"
+                                  "text": "*${{github.actor}}* triggered new deployment on Lambda function :lambda_2: *`${{ inputs.function_name }}`*"
                               }
                           ]
                       }
@@ -63,7 +63,7 @@ jobs:
             }
 
   Tag_Production:
-    name: Tag production build
+    name: Tag Production build
     needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
@@ -78,7 +78,7 @@ jobs:
           WITH_V: true
 
   Tag_Staging:
-    name: Tag staging build
+    name: Tag Staging build
     needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
@@ -130,6 +130,10 @@ jobs:
   Notify_Deploy_Success:
     name: Post to a Slack channel
     needs: [ Notify_Deploy_Start, Deploy_Production, Deploy_Staging ]
+    if: |
+      always()
+      && contains(needs.*.result, 'success')
+      && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Slack
@@ -155,7 +159,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "${{github.actor}} triggered new deployment on Lambda function :lambda_2: `${{ inputs.function_name }}`"
+                                  "text": "*${{github.actor}}* triggered new deployment on Lambda function :lambda_2: *`${{ inputs.function_name }}`*"
                               }
                           ]
                       }
@@ -174,7 +178,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "Deployment succeeded :confetti_ball:`"
+                                  "text": "Deployment succeeded on Lambda function :lambda_2: *`${{ inputs.function_name }}`* :confetti_ball:`"
                               }
                           ]
                       }
