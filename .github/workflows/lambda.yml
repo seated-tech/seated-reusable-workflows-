@@ -36,7 +36,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C04SW266W3S' }}
+          channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C01D610KAAX' }}
           payload: |
             {
             	"attachments": [
@@ -141,7 +141,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C04SW266W3S' }}
+          channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C01D610KAAX' }}
           update-ts: ${{ needs.Notify_Deploy_Start.outputs.slack_ts }}
           payload: |
             {
@@ -178,7 +178,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "Deployment succeeded on :lambda_2: *`${{ inputs.function_name }}`* :confetti_ball:`"
+                                  "text": "Deployment succeeded! :confetti_ball:`"
                               }
                           ]
                       }
