@@ -115,6 +115,7 @@ jobs:
                 ]
             }
 
+
   Deploy_Production:
     name: Production Deploy
     needs: Notify_Deploy_Start
@@ -123,6 +124,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          path: ${{ inputs.function_name }}
+      - name: Install dependencies
+        uses: docker://lambci/lambda:build-python3.7
+        with:
+          entrypoint: pip
+          args: install -r requirements.txt --target .
+      - name: Bundle function with dependencies
+        run: |
+          zip -r build.zip .
       - name: Deploy Production
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -130,7 +141,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}
-          source: ${{ inputs.function_name }}/lambda_function.py
+          zip_file: build.zip
 
   Deploy_Staging:
     name: Staging Deploy
@@ -140,6 +151,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          path: ${{ inputs.function_name }}
+      - name: Install dependencies
+        uses: docker://lambci/lambda:build-python3.7
+        with:
+          entrypoint: pip
+          args: install -r requirements.txt --target .
+      - name: Bundle function with dependencies
+        run: |
+          zip -r build.zip .
       - name: Deploy Staging
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -147,7 +168,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}-staging
-          source: ${{ inputs.function_name }}/lambda_function.py
+          zip_file: build.zip
 
   Notify_Deploy_Success:
     name: Alert Success
