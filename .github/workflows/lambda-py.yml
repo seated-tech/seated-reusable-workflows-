@@ -98,7 +98,7 @@ jobs:
           args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
       - name: Bundle function with dependencies
         run: |
-          zip -r ${{ inputs.function_name }}/build.zip ${{ inputs.function_name }}/*
+          cd ${{ inputs.function_name }} ; zip -r ../build.zip . *
       - name: Deploy Production
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -106,7 +106,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}
-          zip_file: ${{ inputs.function_name }}/build.zip
+          zip_file: build.zip
 
   Deploy_Staging:
     name: Staging Deploy
@@ -123,7 +123,7 @@ jobs:
           args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
       - name: Bundle function with dependencies
         run: |
-          zip -r ${{ inputs.function_name }}/build.zip ${{ inputs.function_name }}/*
+          cd ${{ inputs.function_name }} ; zip -r ../build.zip . *
       - name: Deploy Staging
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -131,7 +131,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}-staging
-          zip_file: ${{ inputs.function_name }}/build.zip
+          zip_file: build.zip
 
   Notify_Deploy_Success:
     name: Alert Success
