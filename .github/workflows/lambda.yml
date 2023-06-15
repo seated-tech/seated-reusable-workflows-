@@ -24,11 +24,14 @@ on:
         required: true
 
 jobs:
-  Notify:
+  Notify_Deploy_Start:
     name: Post to a Slack channel
     runs-on: ubuntu-latest
+    outputs:
+      slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
     steps:
       - name: Slack
+        id: slack_notify_start
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -50,7 +53,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "${{github.ref == 'refs/heads/release' && ':lambda_2: Lambda function *inputs.function_name* released a new version!' || ':lambda_2: Lambda function *inputs.function_name-staging* released a new version!' }}"
+                                  "text": "${{github.actor}} triggered new deployment on Lambda function :lambda_2: `${{ inputs.function_name }}`"
                               }
                           ]
                       }
@@ -61,7 +64,7 @@ jobs:
 
   Tag_Production:
     name: Tag production build
-    needs: Notify
+    needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
     steps:
@@ -76,7 +79,7 @@ jobs:
 
   Tag_Staging:
     name: Tag staging build
-    needs: Notify
+    needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -123,3 +126,59 @@ jobs:
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}-staging
           source: ${{ inputs.function_name }}/lambda_function.py
+
+  Notify_Deploy_Success:
+    name: Post to a Slack channel
+    needs: [ Notify_Deploy_Start, Deploy_Production, Deploy_Staging ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: "CHANNEL_ID"
+          update-ts: ${{ needs.Notify_Deploy_Start.outputs.slack_ts }}
+          payload: |
+            {
+            	"attachments": [
+                  {
+                    "color": "#ffc800",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "${{github.actor}} triggered new deployment on Lambda function :lambda_2: `${{ inputs.function_name }}`"
+                              }
+                          ]
+                      }
+            	    ]
+                  },
+                  {
+                    "color": "#008000",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "Deployment succeeded :confetti_ball:`"
+                              }
+                          ]
+                      }
+            	    ]
+                  }
+                ]
+            }
