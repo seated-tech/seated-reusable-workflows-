@@ -168,12 +168,7 @@ jobs:
                                   "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ inputs.function_name }}`*"
                               }
                           ]
-                      }
-            	    ]
-                  },
-                  {
-                    "color": "#C0C0C0",
-                    "blocks": [
+                      },
                       {
                           "type": "context",
                           "elements": [
