@@ -24,25 +24,9 @@ on:
         required: true
 
 jobs:
-  Tag:
-    name: Tag
-    runs-on: ubuntu-latest
-    outputs:
-      deployment_version: ${{ steps.tag.outputs.new_tag }}
-    steps:
-      - name: Tag
-        id: tag
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          RELEASE_BRANCHES: release
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          DEFAULT_BUMP: patch
-          WITH_V: true
-          PRERELEASE_SUFFIX: ${{ github.ref == 'refs/heads/release' && '' || 'beta' }}
 
   Notify_Deploy_Start:
     name: Alert Start
-    needs: [Tag]
     runs-on: ubuntu-latest
     outputs:
       slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
@@ -89,7 +73,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}:${{needs.Tag.outputs.deployment_version}}> is built :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
@@ -200,7 +184,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}::${{needs.Tag.outputs.deployment_version}}> is built :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
@@ -219,7 +203,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{inputs.function_name}}${{ github.ref == 'refs/heads/release' && '' || '-staging' }}?tab=code|Primary> region:confetti_ball:`"
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{inputs.function_name}}${{ github.ref == 'refs/heads/release' && '' || '-staging' }}?tab=code|Primary> region :confetti_ball:"
                               }
                           ]
                       }
