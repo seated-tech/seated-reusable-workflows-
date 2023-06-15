@@ -23,10 +23,6 @@ on:
       SEATED_AWS_SECONDARY_REGION:
         required: true
 
-defaults:
-  run:
-    working-directory: ./${{ inputs.function_name }}
-
 jobs:
   Tag:
     name: Tag
@@ -108,11 +104,12 @@ jobs:
     needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
+    defaults:
+      run:
+        working-directory: ${{ inputs.function_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          path: ./${{ inputs.function_name }}
       - name: Install dependencies
         uses: docker://lambci/lambda:build-python3.7
         with:
@@ -135,11 +132,12 @@ jobs:
     needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
+    defaults:
+      run:
+        working-directory: ${{ inputs.function_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          path: ./${{ inputs.function_name }}
       - name: Install dependencies
         uses: docker://lambci/lambda:build-python3.7
         with:
