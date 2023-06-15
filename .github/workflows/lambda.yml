@@ -53,7 +53,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{github.actor}}* triggered new deployment on Lambda function :lambda_2: *`${{ inputs.function_name }}`*"
+                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ inputs.function_name }}`*"
                               }
                           ]
                       }
@@ -141,13 +141,13 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: "CHANNEL_ID"
+          channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C04SW266W3S' }}
           update-ts: ${{ needs.Notify_Deploy_Start.outputs.slack_ts }}
           payload: |
             {
             	"attachments": [
                   {
-                    "color": "#ffc800",
+                    "color": "#C0C0C0",
                     "blocks": [
                       {
                           "type": "context",
@@ -159,7 +159,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{github.actor}}* triggered new deployment on Lambda function :lambda_2: *`${{ inputs.function_name }}`*"
+                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ inputs.function_name }}`*"
                               }
                           ]
                       }
@@ -178,7 +178,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "Deployment succeeded on Lambda function :lambda_2: *`${{ inputs.function_name }}`* :confetti_ball:`"
+                                  "text": "Deployment succeeded on :lambda_2: *`${{ inputs.function_name }}`* :confetti_ball:`"
                               }
                           ]
                       }
