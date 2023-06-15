@@ -8,6 +8,8 @@ on:
         default: false
         type: string
     secrets:
+      SLACK_BOT_TOKEN:
+        required: true
       GH_TOKEN:
         required: true
       AWS_ACCOUNT_ID:
@@ -22,8 +24,22 @@ on:
         required: true
 
 jobs:
+  Notify:
+    name: Post to a Slack channel
+    id: slack
+    uses: slackapi/slack-github-action@v1.14.0
+    with:
+      channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C01D610KAAX' }}
+      slack-message: |
+        ${{ github.ref == 'refs/heads/release' && \
+        ':lambda_2: *${{ inputs.function_name }}* released a new version!' || \
+        ':lambda_2: *${{ inputs.function_name }}-staging* released a new version!' }}
+    env:
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
   Tag_Production:
     name: Tag production build
+    needs: Notify
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
     steps:
@@ -38,6 +54,7 @@ jobs:
 
   Tag_Staging:
     name: Tag staging build
+    needs: Notify
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
