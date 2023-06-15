@@ -1,0 +1,86 @@
+name: Deploy to AWS Lambda
+
+on:
+  workflow_call:
+    inputs:
+      function_name:
+        required: true
+        default: false
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+      AWS_ACCOUNT_ID:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      SEATED_AWS_PRIMARY_REGION:
+        required: true
+      SEATED_AWS_SECONDARY_REGION:
+        required: true
+
+jobs:
+  Tag_Production:
+    name: Tag production build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release'
+    steps:
+      - name: Tagging
+        id: tag_production
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          RELEASE_BRANCHES: release
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: true
+
+  Tag_Staging:
+    name: Tag staging build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Tagging
+        id: tag_staging
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          RELEASE_BRANCHES: release
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          PRERELEASE_SUFFIX: beta
+
+  Deploy_Production:
+    name: Deploy AWS Lambda to Production
+    needs: Tag_Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy Production
+        uses: appleboy/lambda-action@v0.1.9
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+          function_name: ${{ inputs.function_name }}
+          source: ${{ inputs.function_name }}/lambda_function.py
+
+  Deploy_Staging:
+    name: Deploy AWS Lambda to Staging
+    needs: Tag_Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy Staging
+        uses: appleboy/lambda-action@v0.1.9
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+          function_name: ${{ inputs.function_name }}-staging
+          source: ${{ inputs.function_name }}/lambda_function.py
