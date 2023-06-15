@@ -24,8 +24,42 @@ on:
         required: true
 
 jobs:
+  Tag_Production:
+    name: Tag Production build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release'
+    steps:
+      - name: Tagging
+        id: tag_production
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          RELEASE_BRANCHES: release
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: true
+
+  Tag_Staging:
+    name: Tag Staging build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Tagging
+        id: tag_staging
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          RELEASE_BRANCHES: release
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          PRERELEASE_SUFFIX: beta
+
   Notify_Deploy_Start:
     name: Post to a Slack channel
+    needs: [Tag_Production, Tag_Staging]
+    if: |
+      always()
+      && contains(needs.*.result, 'success')
+      && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     outputs:
       slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
@@ -41,7 +75,7 @@ jobs:
             {
             	"attachments": [
                   {
-                    "color": "#ffc800",
+                    "color": "#C0C0C0",
                     "blocks": [
                       {
                           "type": "context",
@@ -58,40 +92,30 @@ jobs:
                           ]
                       }
             	    ]
+                  },
+                 {
+                    "color": "#ffc800",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark:"
+                              }
+                          ]
+                      }
+            	    ]
                   }
                 ]
             }
 
-  Tag_Production:
-    name: Tag Production build
-    needs: Notify_Deploy_Start
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/release'
-    steps:
-      - name: Tagging
-        id: tag_production
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          RELEASE_BRANCHES: release
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          DEFAULT_BUMP: patch
-          WITH_V: true
 
-  Tag_Staging:
-    name: Tag Staging build
-    needs: Notify_Deploy_Start
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - name: Tagging
-        id: tag_staging
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          RELEASE_BRANCHES: release
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          DEFAULT_BUMP: patch
-          WITH_V: true
-          PRERELEASE_SUFFIX: beta
 
   Deploy_Production:
     name: Deploy AWS Lambda to Production
@@ -165,6 +189,25 @@ jobs:
                       }
             	    ]
                   },
+                  {
+                    "color": "#C0C0C0",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark:"
+                              }
+                          ]
+                      }
+            	    ]
+                  }
                   {
                     "color": "#008000",
                     "blocks": [
