@@ -25,7 +25,7 @@ on:
 
 jobs:
   Tag_Production:
-    name: Tag Production build
+    name: Tag Production
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
     steps:
@@ -39,7 +39,7 @@ jobs:
           WITH_V: true
 
   Tag_Staging:
-    name: Tag Staging build
+    name: Tag Staging
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -54,7 +54,7 @@ jobs:
           PRERELEASE_SUFFIX: beta
 
   Notify_Deploy_Start:
-    name: Post to a Slack channel
+    name: Alert Start
     needs: [Tag_Production, Tag_Staging]
     if: |
       always()
@@ -115,11 +115,9 @@ jobs:
                 ]
             }
 
-
-
   Deploy_Production:
-    name: Deploy AWS Lambda to Production
-    needs: Tag_Production
+    name: Production Deploy
+    needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
     steps:
@@ -135,8 +133,8 @@ jobs:
           source: ${{ inputs.function_name }}/lambda_function.py
 
   Deploy_Staging:
-    name: Deploy AWS Lambda to Staging
-    needs: Tag_Staging
+    name: Staging Deploy
+    needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -153,7 +151,7 @@ jobs:
 
   Notify_Deploy_Success:
     name: Post to a Slack channel
-    needs: [ Notify_Deploy_Start, Deploy_Production, Deploy_Staging ]
+    needs: [ Deploy_Production, Deploy_Staging ]
     if: |
       always()
       && contains(needs.*.result, 'success')
@@ -207,7 +205,7 @@ jobs:
                           ]
                       }
             	    ]
-                  }
+                  },
                   {
                     "color": "#008000",
                     "blocks": [
