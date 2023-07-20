@@ -73,7 +73,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built with :docker: container image :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
@@ -212,7 +212,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built with :docker: container image :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
