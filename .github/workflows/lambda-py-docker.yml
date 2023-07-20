@@ -111,7 +111,7 @@ jobs:
         run: echo name=ecr_login::\"$(aws ecr get-login-password)\" >> $GITHUB_OUTPUT
       - name: Build and tag the image
         run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}:${{ steps.tagging.outputs.new_tag }} .
+          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}:${{ steps.tagging.outputs.new_tag }} ${{ inputs.function_name }}/.
       - name: Push
         run: |
           docker push --all-tags ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}
@@ -153,7 +153,7 @@ jobs:
         run: echo name=ecr_login::\"$(aws ecr get-login-password)\" >> $GITHUB_OUTPUT
       - name: Build and tag the image
         run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging:${{ steps.tagging.outputs.new_tag }} .
+          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging:${{ steps.tagging.outputs.new_tag }} ${{ inputs.function_name }}/.
       - name: Push
         run: |
           docker push --all-tags ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging
