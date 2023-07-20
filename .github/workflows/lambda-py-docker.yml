@@ -164,7 +164,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}-staging
-          image_url: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging:${{ steps.tagging.outputs.new_tag }}
+          image_uri: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging:${{ steps.tagging.outputs.new_tag }}
 
   Notify_Deploy_Success:
     name: Alert Success
