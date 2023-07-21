@@ -109,12 +109,17 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Build and tag the image
-        run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}:${{ steps.tagging.outputs.new_tag }} ${{ inputs.function_name }}/.
-      - name: Push
-        run: |
-          docker push --all-tags ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push the image
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ inputs.function_name }}/.
+          file: ${{ inputs.function_name }}/Dockerfile
+          push: true
+          tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}:${{ steps.tagging.outputs.new_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Deploy Production
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -123,7 +128,6 @@ jobs:
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ inputs.function_name }}
           image_url: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}:${{ steps.tagging.outputs.new_tag }}
-
 
   Deploy_Staging:
     name: Staging Deploy
@@ -151,12 +155,16 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Build and tag the image
-        run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging:${{ steps.tagging.outputs.new_tag }} ${{ inputs.function_name }}/.
-      - name: Push
-        run: |
-          docker push --all-tags ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging
+      - name: Build and push the image
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ inputs.function_name }}/.
+          file: ${{ inputs.function_name }}/Dockerfile
+          push: true
+          tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging:${{ steps.tagging.outputs.new_tag }}
+          cache-from: type=gha
+          cache-to:
+            type=gha,mode=max
       - name: Deploy Staging
         uses: appleboy/lambda-action@v0.1.9
         with:
