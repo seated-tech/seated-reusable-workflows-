@@ -58,7 +58,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`$SERVICE_NAME`*"
+                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ env.SERVICE_NAME }}`*"
                               }
                           ]
                       }
@@ -102,7 +102,7 @@ jobs:
           context: ${{ inputs.function_name }}/.
           file: ${{ inputs.function_name }}/Dockerfile
           push: true
-          tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/$SERVICE_NAME:${{ steps.tagging.outputs.new_tag }}
+          tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
@@ -130,7 +130,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`$SERVICE_NAME`*"
+                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ env.SERVICE_NAME }}`*"
                               }
                           ]
                       }
@@ -149,7 +149,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|$SERVICE_NAME:${{ steps.tagging.outputs.new_tag }}> is built with :docker: container image :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built with :docker: container image :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
@@ -176,8 +176,8 @@ jobs:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
-          function_name: $SERVICE_NAME
-          image_url: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/$SERVICE_NAME:${{ needs.Build.outputs.version }}
+          function_name: ${{ env.SERVICE_NAME }}
+          image_url: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ needs.Build.outputs.version }}
 
   Notify_Deploy_Success:
     name: Alert Success
@@ -211,7 +211,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`$SERVICE_NAME`*"
+                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ env.SERVICE_NAME }}`*"
                               }
                           ]
                       },
@@ -225,7 +225,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|$SERVICE_NAME:${{ steps.tagging.outputs.new_tag }}> is built with :docker: container image :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built with :docker: container image :white_check_mark: waiting for deployment"
                               }
                           ]
                       }
@@ -244,7 +244,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/$SERVICE_NAME?tab=code|Primary> region :confetti_ball:"
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{ env.SERVICE_NAME }}?tab=code|Primary> region :confetti_ball:"
                               }
                           ]
                       }
