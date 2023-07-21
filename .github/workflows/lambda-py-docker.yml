@@ -74,6 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.tagging.outputs.new_tag }}
+      slack_ts: ${{ steps.slack_notify_build.outputs.ts }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -107,7 +108,7 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: false
       - name: Slack
-        id: slack_notify_start
+        id: slack_notify_build
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -149,7 +150,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built :docker: deploying..."
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built :docker:"
                               }
                           ]
                       }
@@ -181,7 +182,7 @@ jobs:
 
   Notify_Deploy_Success:
     name: Alert Success
-    needs: [ Deploy ]
+    needs: [ Build, Deploy ]
     if: |
       always()
       && contains(needs.*.result, 'success')
@@ -194,7 +195,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           channel-id: ${{ env.SLACK_CHANNEL_ID }}
-          update-ts: ${{ needs.Notify_Deploy_Start.outputs.slack_ts }}
+          update-ts: ${{ needs.Build.outputs.slack_ts }}
           payload: |
             {
             	"attachments": [
