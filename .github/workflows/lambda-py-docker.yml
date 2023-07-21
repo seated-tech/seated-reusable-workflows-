@@ -41,7 +41,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel-id: $SLACK_CHANNEL_ID
+          channel-id: ${{ env.SLACK_CHANNEL_ID }}
           payload: |
             {
             	"attachments": [
