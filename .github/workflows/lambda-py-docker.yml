@@ -120,6 +120,7 @@ jobs:
           tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}:${{ steps.tagging.outputs.new_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
       - name: Deploy Production
         uses: appleboy/lambda-action@v0.1.9
         with:
@@ -165,8 +166,8 @@ jobs:
           push: true
           tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ inputs.function_name }}-staging:${{ steps.tagging.outputs.new_tag }}
           cache-from: type=gha
-          cache-to:
-            type=gha,mode=max
+          cache-to: type=gha,mode=max
+          provenance: false
       - name: Deploy Staging
         uses: appleboy/lambda-action@v0.1.9
         with:
