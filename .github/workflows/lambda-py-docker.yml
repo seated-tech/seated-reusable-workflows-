@@ -226,7 +226,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built :docker:"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ needs.Build.outputs.version }}> is built :docker:"
                               }
                           ]
                       }
