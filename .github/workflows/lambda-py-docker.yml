@@ -25,7 +25,7 @@ on:
 
 env:
   SERVICE_NAME: ${{ github.ref == 'refs/heads/release' && format('{0}', inputs.function_name) || format('{0}-staging', inputs.function_name) }}
-  SLACK_CHANNEL_ID: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C04SW266W3S' }}
+  SLACK_CHANNEL_ID: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C01D610KAAX' }}
 
 jobs:
 
