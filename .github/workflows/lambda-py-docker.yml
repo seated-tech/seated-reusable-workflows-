@@ -149,7 +149,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built with :docker: container image :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built :docker: deploying..."
                               }
                           ]
                       }
@@ -177,7 +177,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ env.SERVICE_NAME }}
-          image_url: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ needs.Build.outputs.version }}
+          image_uri: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ needs.Build.outputs.version }}
 
   Notify_Deploy_Success:
     name: Alert Success
@@ -225,7 +225,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built with :docker: container image :white_check_mark: waiting for deployment"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}> is built :docker:"
                               }
                           ]
                       }
