@@ -73,19 +73,10 @@ jobs:
     needs: Notify_Deploy_Start
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.tagging.outputs.new_tag }}
       slack_ts: ${{ steps.slack_notify_build.outputs.ts }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Tagging
-        id: tagging
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          RELEASE_BRANCHES: release
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          DEFAULT_BUMP: patch
-          WITH_V: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -103,7 +94,7 @@ jobs:
           context: ${{ inputs.function_name }}/.
           file: ${{ inputs.function_name }}/Dockerfile
           push: true
-          tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ steps.tagging.outputs.new_tag }}
+          tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
@@ -178,7 +169,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
           function_name: ${{ env.SERVICE_NAME }}
-          image_uri: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ needs.Build.outputs.version }}
+          image_uri: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.SEATED_AWS_PRIMARY_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
   Notify_Deploy_Success:
     name: Alert Success
@@ -226,7 +217,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ needs.Build.outputs.version }}> is built :docker:"
+                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{ env.SERVICE_NAME }}:${{ github.sha }}> is built :docker:"
                               }
                           ]
                       }
