@@ -22,6 +22,8 @@ on:
         required: true
       SEATED_AWS_SECONDARY_REGION:
         required: true
+      CYBERDOG_CICD_AUTH:
+        required: true
 
 jobs:
   Build:
@@ -37,6 +39,7 @@ jobs:
           method: "POST"
           data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "PRODUCTION", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}"}'
           preventFailureOnNoResponse: "true"
+          customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -123,6 +126,7 @@ jobs:
           method: "POST"
           data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "PRODUCTION", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}"}'
           preventFailureOnNoResponse: "true"
+          customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
   Notification:
     runs-on: ubuntu-latest
@@ -140,6 +144,7 @@ jobs:
           method: "POST"
           data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "PRODUCTION", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}"}'
           preventFailureOnNoResponse: "true"
+          customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
   Primary_Deployment:
     runs-on: ubuntu-latest
@@ -223,6 +228,7 @@ jobs:
           method: "POST"
           data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "PRODUCTION", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}"}'
           preventFailureOnNoResponse: "true"
+          customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
   Deployment_Failure_Or_Rejection:
     runs-on: ubuntu-latest
@@ -237,3 +243,4 @@ jobs:
           method: "POST"
           data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "PRODUCTION", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}"}'
           preventFailureOnNoResponse: "true"
+          customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
