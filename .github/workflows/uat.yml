@@ -143,6 +143,8 @@ jobs:
           method: "POST"
           data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}"}'
           preventFailureOnNoResponse: "true"
+          customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
+
 
   Primary_Deployment:
     runs-on: ubuntu-latest
