@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deployment_version: ${{ steps.tagging.outputs.new_tag }}
+      codescan_status: ${{ steps.codescan.conclusion }}
     steps:
     - name: Post to a Slack channel
       id: slack_build_init
@@ -130,7 +131,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/build/fail"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "codescan_status": "${{needs.Build.codescan.conclusion}}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "codescan_status": "${{needs.Build.outputs.conclusion}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
@@ -148,7 +149,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/awaits-approval"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}", "codescan_status": "${{needs.Build.codescan.conclusion}}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}", "codescan_status": "${{needs.Build.outputs.codescan_status}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
@@ -233,7 +234,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/success"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}", "codescan_status": "${{needs.Build.codescan.conclusion}}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}", "codescan_status": "${{needs.Build.outputs.conclusion}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
@@ -248,7 +249,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/fail"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}", "codescan_status": "${{needs.Build.codescan.conclusion}}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}", "codescan_status": "${{needs.Build.outputs.conclusion}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
