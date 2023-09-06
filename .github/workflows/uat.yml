@@ -58,6 +58,12 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+    - name: CodeGuru Security
+      uses: aws-actions/codeguru-security@v1
+      with:
+        source_path: .
+        aws_region: us-east-1
+        fail_on_severity: Critical
     - name: Unit Test
       id: test
       env:
