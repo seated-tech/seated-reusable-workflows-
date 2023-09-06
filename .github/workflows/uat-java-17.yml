@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deployment_version: ${{ steps.tagging.outputs.new_tag }}
-      codescan_status: ${{ steps.codescan.conclusion }}
+      codescan_status: ${{ steps.codescan.result }}
     steps:
     - name: Post to a Slack channel
       id: slack_build_init
