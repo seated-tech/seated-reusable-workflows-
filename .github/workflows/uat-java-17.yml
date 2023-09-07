@@ -71,9 +71,11 @@ jobs:
     - name: Parse CodeScan JSON
       id: parse_codescan
       run: |
-        echo 'codescan_json<<EOF' >> $GITHUB_ENV
-        cat codeguru-security-results.sarif.json >> $GITHUB_ENV
-        echo 'EOF' >> $GITHUB_ENV
+        {
+          echo 'codescan_json<<EOF'
+          cat codeguru-security-results.sarif.json
+          echo EOF
+        } >> "$GITHUB_ENV"
     - run: |
         echo "${{env.codescan_json}}"
         echo "${{fromJson(env.codescan_json)}}"
