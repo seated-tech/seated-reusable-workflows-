@@ -73,7 +73,7 @@ jobs:
       run: |
         {
           echo 'codescan_json<<EOF'
-          cat codeguru-security-results.sarif.json
+          sed -e '$a\' codeguru-security-results.sarif.json
           echo EOF
         } >> "$GITHUB_ENV"
     - run: |
