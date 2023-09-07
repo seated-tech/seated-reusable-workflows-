@@ -29,7 +29,7 @@ jobs:
     outputs:
       deployment_version: ${{ steps.tagging.outputs.new_tag }}
       codescan_status: ${{ steps.codescan.outcome }}
-      codescan_json: ${{ steps.parse_codescan.outputs.codescan_json }}
+      codescan_json: ${{ fromJson(env.codescan_json) }}
     steps:
     - name: Post to a Slack channel
       id: slack_build_init
@@ -76,9 +76,6 @@ jobs:
           sed -e '$a\' codeguru-security-results.sarif.json
           echo EOF
         } >> "$GITHUB_ENV"
-    - run: |
-        echo "${{env.codescan_json}}"
-        echo "${{fromJson(env.codescan_json)}}"
     - name: Unit Test
       id: test
       env:
