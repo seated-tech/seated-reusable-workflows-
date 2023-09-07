@@ -76,8 +76,6 @@ jobs:
         content="${content//$'\n'/'%0A'}"
         content="${content//$'\r'/'%0D'}"
         echo "codescan_json=$content" >> "$GITHUB_OUTPUT"
-    - run: |
-        echo "${{fromJson(steps.parse_codescan.outputs.codescan_json)}}"
     - name: Unit Test
       id: test
       env:
