@@ -29,6 +29,7 @@ jobs:
     outputs:
       deployment_version: ${{ steps.tagging.outputs.new_tag }}
       codescan_status: ${{ steps.codescan.outcome }}
+      codescan_json: ${{ steps.parse_codescan.outputs.codescan_json }}
     steps:
     - name: Post to a Slack channel
       id: slack_build_init
@@ -70,11 +71,7 @@ jobs:
     - name: Parse CodeScan JSON
       id: parse_codescan
       run: |
-        {
-          echo 'codescan_json<<EOF'
-          sed -e '$a\' codeguru-security-results.sarif.json
-          echo EOF
-        } >> "$GITHUB_ENV"
+        echo "codescan_json<<EOF"$'\n'"$(cat codeguru-security-results.sarif.json)"$'\n'EOF >> $GITHUB_OUTPUT
     - name: Unit Test
       id: test
       env:
@@ -158,7 +155,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/awaits-approval"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}", "codescanStatus": "${{needs.Build.outputs.codescan_status}}", "codescanJson": "${{fromJson(env.codescan_json)}}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "UAT", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}", "codescanStatus": "${{needs.Build.outputs.codescan_status}}", "codescanJson": "${{needs.Build.outputs.codescan_json}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
