@@ -72,7 +72,7 @@ jobs:
       id: parse_codescan
       run: |
         content=`cat codeguru-security-results.sarif.json`
-        echo content
+        echo $content
         echo name=codescan_json::$content >> $GITHUB_OUTPUT
     - run: |
         echo "${{fromJson(steps.parse_codescan.outputs.codescan_json)}}"
