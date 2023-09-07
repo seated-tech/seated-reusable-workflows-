@@ -72,7 +72,10 @@ jobs:
       id: parse_codescan
       run: |
         content=`cat codeguru-security-results.sarif.json`
-        echo "codescan_json=fromJson(content)" >> "$GITHUB_OUTPUT"
+        echo $content
+        echo "codescan_json=$content" >> "$GITHUB_OUTPUT"
+    - run: |
+        echo "${{fromJson(steps.parse_codescan.outputs.codescan_json)}}"
     - name: Unit Test
       id: test
       env:
