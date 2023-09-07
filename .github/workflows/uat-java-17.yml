@@ -72,7 +72,10 @@ jobs:
       id: parse_codescan
       run: |
         JSON=$(cat codeguru-security-results.sarif.json)
-        echo "codescan_json=${JSON//'%'/'%25'}" >> "$GITHUB_OUTPUT"
+        JSON="${JSON//'%'/'%25'}"
+        JSON="${JSON//$'\n'/'%0A'}"
+        JSON="${JSON//$'\r'/'%0D'}"
+        echo "codescan_json=$JSON" >> "$GITHUB_OUTPUT"
     - run: |
         echo "${{steps.parse_codescan.outputs.codescan_json}}"
         echo "${{fromJson(steps.parse_codescan.outputs.codescan_json)}}"
