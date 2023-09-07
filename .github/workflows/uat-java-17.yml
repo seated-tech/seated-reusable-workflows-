@@ -71,12 +71,8 @@ jobs:
     - name: Parse CodeScan JSON
       id: parse_codescan
       run: |
-        content=`cat codeguru-security-results.sarif.json`
-        content="${content//'%'/'%25'}"
-        content="${content//$'\n'/'%0A'}"
-        content="${content//$'\r'/'%0D'}"
-        echo $content
-        echo "codescan_json=$content" >> "$GITHUB_OUTPUT"
+        JSON=$(cat codeguru-security-results.sarif.json)
+        echo "codescan_json=${JSON//'%'/'%25'}" >> "$GITHUB_OUTPUT"
     - run: |
         echo "${{steps.parse_codescan.outputs.codescan_json}}"
         echo "${{fromJson(steps.parse_codescan.outputs.codescan_json)}}"
