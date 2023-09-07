@@ -78,6 +78,7 @@ jobs:
         echo $content
         echo "codescan_json=$content" >> "$GITHUB_OUTPUT"
     - run: |
+        echo "${{steps.parse_codescan.outputs.codescan_json}}"
         echo "${{fromJson(steps.parse_codescan.outputs.codescan_json)}}"
     - name: Unit Test
       id: test
