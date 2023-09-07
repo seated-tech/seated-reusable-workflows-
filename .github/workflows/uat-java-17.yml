@@ -75,7 +75,7 @@ jobs:
         content="${content//'%'/'%25'}"
         content="${content//$'\n'/'%0A'}"
         content="${content//$'\r'/'%0D'}"
-        echo name=codescan_json::$content >> $GITHUB_OUTPUT
+        echo "::set-output name=codescan_json::$content"
     - run: |
         echo "${{steps.parse_codescan.outputs.codescan_json}}"
     - name: Unit Test
