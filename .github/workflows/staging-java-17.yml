@@ -28,6 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deployment_version: ${{ steps.tagging.outputs.new_tag }}
+      codescan_status: ${{ steps.codescan.outcome }}
+      codescan_json: ${{ steps.parse_codescan.outputs.codescan_json }}
     steps:
     - name: Post to a Slack channel
       id: slack_build_init
@@ -58,6 +60,18 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+    - name: CodeGuru Security
+      id: codescan
+      uses: aws-actions/codeguru-security@v1
+      continue-on-error: true
+      with:
+        source_path: .
+        aws_region: us-east-1
+        fail_on_severity: Critical
+    - name: Parse CodeScan JSON
+      id: parse_codescan
+      run: |
+        echo "codescan_json<<EOF"$'\n'"$(cat codeguru-security-results.sarif.json)"$'\n'EOF >> $GITHUB_OUTPUT
     - name: Unit Test
       id: test
       env:
@@ -123,7 +137,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/build/fail"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "codescanStatus": "${{needs.Build.outputs.codescan_status}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
@@ -141,7 +155,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/awaits-approval"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "version": "${{ needs.Build.outputs.deployment_version }}", "commitSHA": "${{ github.sha }}", "codescanStatus": "${{needs.Build.outputs.codescan_status}}", "codescanJson": ${{needs.Build.outputs.codescan_json}}}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
@@ -225,7 +239,7 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/success"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}", "codescanStatus": "${{needs.Build.outputs.codescan_status}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
 
@@ -240,6 +254,6 @@ jobs:
         with:
           url: "https://cyberdog.seatedapp.io/deployment/fail"
           method: "POST"
-          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}"}'
+          data: '{"repository": "${{ github.event.repository.name }}", "repositoryFullName": "${{ github.repository }}", "user": "${{ github.actor }}", "environment": "STAGING", "runId": "${{ github.run_id }}", "runAttempt": "${{ github.run_attempt }}", "reference": "${{ github.ref }}", "commitSHA": "${{ github.sha }}", "codescanStatus": "${{needs.Build.outputs.codescan_status}}"}'
           preventFailureOnNoResponse: "true"
           customHeaders: '{"Authorization": "${{ secrets.CYBERDOG_CICD_AUTH }}"}'
