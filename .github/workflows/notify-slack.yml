@@ -23,7 +23,9 @@ on:
         required: false
         type: string
     outputs:
-      slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
+      slack_ts:
+        description: "Slack timestamp for message"
+        value: ${{ jobs.Notify_Slack.outputs.slack_ts }}
     secrets:
       SLACK_BOT_TOKEN:
         required: true
