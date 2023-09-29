@@ -38,7 +38,7 @@ jobs:
     steps:
       - name: Slack Send
         id: slack_send
-        if: ${{ github.event.inputs.slack_ts == null }}
+        if: ${{ inputs.slack_ts == null }}
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: ${{ inputs.channel_id }}
@@ -70,7 +70,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       - name: Slack Update
         id: slack_update
-        if: ${{ github.event.inputs.slack_ts != null }}
+        if: ${{ inputs.slack_ts != null }}
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: ${{ inputs.channel_id }}
