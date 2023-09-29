@@ -16,7 +16,11 @@ on:
         required: false
         type: string
       color:
-        required: true
+        required: false
+        default: "#C0C0C0"
+        type: string
+      original_message:
+        required: false
         type: string
     outputs:
       slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
@@ -40,7 +44,7 @@ jobs:
             {
                 "attachments": [
                   {
-                    "color": ${{ inputs.color }},
+                    "color": "#C0C0C0",
                     "blocks": [
                       {
                           "type": "context",
@@ -72,6 +76,25 @@ jobs:
           payload: |
             {
                 "attachments": [
+                  {
+                    "color": "#C0C0C0",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": ${{ inputs.image_url }},
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": ${{ inputs.original_message }}
+                              }
+                          ]
+                      }
+                    ]
+                  },
                   {
                     "color": ${{ inputs.color }},
                     "blocks": [
