@@ -34,7 +34,7 @@ jobs:
   Notify_Slack:
     runs-on: ubuntu-latest
     outputs:
-      slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
+      slack_ts: ${{ steps.slack_send.outputs.ts }}
     steps:
       - name: Slack Send
         id: slack_send
