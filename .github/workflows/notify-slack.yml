@@ -25,16 +25,50 @@ on:
         required: true
 
 jobs:
-  Slack_Notify_Start:
+  Notify_Slack:
     runs-on: ubuntu-latest
     outputs:
       slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
     steps:
-      - name: Slack
-        id: slack_notify_start
+      - name: Slack Send
+        id: slack_send
+        if: ${{ github.event.inputs.slack_ts == null }}
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: ${{ inputs.channel_id }}
+          payload: |
+            {
+                "attachments": [
+                  {
+                    "color": ${{ inputs.color }},
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": ${{ inputs.image_url }},
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": ${{ inputs.slack_message }}
+                              }
+                          ]
+                      }
+                    ]
+                  }
+                ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      - name: Slack Update
+        id: slack_update
+        if: ${{ github.event.inputs.slack_ts != null }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ inputs.channel_id }}
+          update-ts: ${{ inputs.slack_ts }}
           payload: |
             {
                 "attachments": [
