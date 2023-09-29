@@ -98,7 +98,7 @@ jobs:
                     ]
                   },
                   {
-                    "color": ${{ inputs.color }},
+                    "color": "${{ inputs.color }}",
                     "blocks": [
                       {
                           "type": "context",
