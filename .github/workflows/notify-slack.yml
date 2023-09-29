@@ -1,0 +1,63 @@
+name: Notify Slack
+
+on:
+  workflow_call:
+    inputs:
+      image_url:
+        required: true
+        type: string
+      slack_message:
+        required: true
+        type: string
+      channel_id:
+        required: true
+        type: string
+      slack_ts:
+        required: false
+        type: string
+      color:
+        required: true
+        type: string
+    outputs:
+      slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
+    secrets:
+      SLACK_BOT_TOKEN:
+        required: true
+
+jobs:
+  Slack_Notify_Start:
+    runs-on: ubuntu-latest
+    outputs:
+      slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
+    steps:
+      - name: Slack
+        id: slack_notify_start
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ inputs.channel_id }}
+          payload: |
+            {
+                "attachments": [
+                  {
+                    "color": ${{ inputs.color }},
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": ${{ inputs.image_url }},
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": ${{ inputs.slack_message }}
+                              }
+                          ]
+                      }
+                    ]
+                  }
+                ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
