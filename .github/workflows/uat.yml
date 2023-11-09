@@ -200,7 +200,6 @@ jobs:
     needs: [Primary_Deployment]
     if: needs.Primary_Deployment.result == 'success'
     steps:
-      - run: echo ${{ needs.Primary_Deployment.result }}
       - name: Post to a Slack channel
         id: slack_deployment_success
         uses: fjogeleit/http-request-action@v1
@@ -216,7 +215,6 @@ jobs:
     needs: [Primary_Deployment]
     if: needs.Primary_Deployment.result == 'failure'
     steps:
-      - run: echo ${{ needs.Primary_Deployment.result }}
       - name: Post to a Slack channel
         id: slack_deployment_fail
         uses: fjogeleit/http-request-action@v1
