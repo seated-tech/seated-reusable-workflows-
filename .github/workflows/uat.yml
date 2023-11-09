@@ -198,7 +198,7 @@ jobs:
   Deployment_Success:
     runs-on: ubuntu-latest
     needs: [Primary_Deployment]
-    if: ${{ needs.Primary_Deployment.result }} == "success"
+    if: needs.Primary_Deployment.result == 'success'
     steps:
       - run: echo ${{ needs.Primary_Deployment.result }}
       - name: Post to a Slack channel
@@ -214,7 +214,7 @@ jobs:
   Deployment_Failure_Or_Rejection:
     runs-on: ubuntu-latest
     needs: [Primary_Deployment]
-    if: ${{ needs.Primary_Deployment.result }} == "failure"
+    if: needs.Primary_Deployment.result == 'failure'
     steps:
       - run: echo ${{ needs.Primary_Deployment.result }}
       - name: Post to a Slack channel
