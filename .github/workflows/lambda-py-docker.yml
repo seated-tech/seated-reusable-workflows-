@@ -24,8 +24,8 @@ on:
         required: true
 
 env:
-  SERVICE_NAME: ${{ github.ref == 'refs/heads/release' && format('{0}-production', inputs.function_name) || format('{0}-staging', inputs.function_name) }}
-  SLACK_CHANNEL_ID: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C01D610KAAX' }}
+  SERVICE_NAME: ${{ github.ref == 'refs/heads/release' && format('{0}-production', inputs.function_name) || ( github.ref == 'refs/heads/master' && format('{0}-staging', inputs.function_name) || format('{0}-uat', inputs.function_name)) }}
+  SLACK_CHANNEL_ID: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || (github.ref == 'refs/heads/master' && 'C01D610KAAX' || 'C02GGKYN6SU') }}
 
 jobs:
 
@@ -236,7 +236,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{ env.SERVICE_NAME }}?tab=code|Primary> region :confetti_ball:"
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || (github.ref == 'refs/heads/master' && 'Staging' || 'UAT' ) }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{ env.SERVICE_NAME }}?tab=code|Primary> region :confetti_ball:"
                               }
                           ]
                       }
