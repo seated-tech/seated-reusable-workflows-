@@ -247,9 +247,9 @@ jobs:
             
 
   Notify_Build_Failure:
-    name: Build Failure
-    needs: [ Build ]
-    if: always() && contains(needs.*.result, 'failure')
+    name: Alert Build Failure
+    needs: [ Notify_Deploy_Start, Build ]
+    if: always() && contains(needs.Build.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Slack
@@ -258,7 +258,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           channel-id: ${{ env.SLACK_CHANNEL_ID }}
-          update-ts: ${{ needs.Build.outputs.slack_ts }}
+          update-ts: ${{ needs.Notify_Deploy_Start.outputs.slack_ts }}
           payload: |
             {
             	"attachments": [
