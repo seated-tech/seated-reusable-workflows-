@@ -54,7 +54,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ inputs.function_name }}`*"
+                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ inputs.function_name }}*>"
                               }
                           ]
                       }
@@ -73,7 +73,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
+                                  "text": "Built <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*${{inputs.function_name}}*> successfully. :white_check_mark: Waiting for *deployment*"
                               }
                           ]
                       }
@@ -165,7 +165,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{github.actor}}* triggered new deployment on :lambda_2: *`${{ inputs.function_name }}`*"
+                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ inputs.function_name }}*>"
                               }
                           ]
                       },
@@ -179,7 +179,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "<https://github.com/seated-tech/availability-check/actions/runs/${{github.run_id}}|${{inputs.function_name}}> is built :white_check_mark: waiting for deployment"
+                                  "text": "Built <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*${{inputs.function_name}}*> successfully. :white_check_mark: Waiting for *deployment*"
                               }
                           ]
                       }
@@ -198,7 +198,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment succeeded in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{inputs.function_name}}${{ github.ref == 'refs/heads/release' && '' || '-staging' }}?tab=code|Primary> region :confetti_ball:"
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment *succeeded* in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{inputs.function_name}}${{ github.ref == 'refs/heads/release' && '' || '-staging' }}?tab=code|*Primary*> region :confetti_ball:"
                               }
                           ]
                       }
