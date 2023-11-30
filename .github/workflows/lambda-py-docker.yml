@@ -203,7 +203,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
+                                  "text": "<https://github.com/${{github.actor}}|*@${{github.actor}}*> triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
                               }
                           ]
                       },
@@ -275,7 +275,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
+                                  "text": "<https://github.com/${{github.actor}}|*@${{github.actor}}*> triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
                               }
                           ]
                       }
@@ -302,3 +302,75 @@ jobs:
                   }
                 ]
             }
+
+  Notify_Deploy_Failure:
+    name: Alert Deploy Failure
+    needs: [ Build, Deploy ]
+    if: always() && contains(needs.Deploy.result, 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: ${{ env.SLACK_CHANNEL_ID }}
+          update-ts: ${{ needs.Build.outputs.slack_ts }}
+          payload: |
+            {
+            	"attachments": [
+                  {
+                    "color": "#C0C0C0",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "<https://github.com/${{github.actor}}|*@${{github.actor}}*> triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
+                              }
+                          ]
+                      },
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "Built :docker: <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*${{ env.SERVICE_NAME }}*> successfully. :white_check_mark:"
+                              }
+                          ]
+                      }
+            	    ]
+                  },
+                  {
+                    "color": "#FF0000",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || (github.ref == 'refs/heads/master' && 'Staging' || 'UAT' ) }}* deployment *failed* :rotating_light:"
+                              }
+                          ]
+                      }
+            	    ]
+                  }
+                ]
+            }
+
