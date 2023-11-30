@@ -58,7 +58,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
+                                  "text": "<https://github.com/${{github.actor}}|*@${{github.actor}}*> triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
                               }
                           ]
                       }
@@ -122,7 +122,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
+                                  "text": "<https://github.com/${{github.actor}}|*@${{github.actor}}*> triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ env.SERVICE_NAME }}*>"
                               }
                           ]
                       }
@@ -294,7 +294,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*@${{github.actor}}* Build failed :rotating_light:"
+                                  "text": "*@${{github.actor}}* Build *failed* :rotating_light:"
                               }
                           ]
                       }
