@@ -365,7 +365,7 @@ jobs:
                               },
                               {
                                   "type": "mrkdwn",
-                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || (github.ref == 'refs/heads/master' && 'Staging' || 'UAT' ) }}* deployment *failed* :rotating_light:"
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || (github.ref == 'refs/heads/master' && 'Staging' || 'UAT' ) }}* deployment <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{ env.SERVICE_NAME }}?tab=code|*failed*> :rotating_light:"
                               }
                           ]
                       }
