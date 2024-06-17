@@ -1,0 +1,208 @@
+name: Deploy to AWS Lambda
+
+on:
+  workflow_call:
+    inputs:
+      function_name:
+        required: true
+        default: false
+        type: string
+    secrets:
+      SLACK_BOT_TOKEN:
+        required: true
+      GH_TOKEN:
+        required: true
+      AWS_ACCOUNT_ID:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      SEATED_AWS_PRIMARY_REGION:
+        required: true
+      SEATED_AWS_SECONDARY_REGION:
+        required: true
+
+jobs:
+
+  Notify_Deploy_Start:
+    name: Alert Start
+    runs-on: ubuntu-latest
+    outputs:
+      slack_ts: ${{ steps.slack_notify_start.outputs.ts }}
+    steps:
+      - name: Slack
+        id: slack_notify_start
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C01D610KAAX' }}
+          payload: |
+            {
+            	"attachments": [
+                  {
+                    "color": "#C0C0C0",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ inputs.function_name }}*>"
+                              }
+                          ]
+                      }
+            	    ]
+                  },
+                 {
+                    "color": "#ffc800",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "Built <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*${{inputs.function_name}}*> successfully. :white_check_mark: Waiting for *deployment*"
+                              }
+                          ]
+                      }
+            	    ]
+                  }
+                ]
+            }
+
+
+  Deploy_Production:
+    name: Production Deploy
+    needs: Notify_Deploy_Start
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: docker://lambci/lambda:build-python3.8
+        with:
+          entrypoint: pip
+          args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
+      - name: Bundle function with dependencies
+        run: |
+          cd ${{ inputs.function_name }} ; zip -r ../build.zip . *
+      - name: Deploy Production
+        uses: appleboy/lambda-action@v0.1.9
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+          function_name: ${{ inputs.function_name }}
+          zip_file: build.zip
+
+  Deploy_Staging:
+    name: Staging Deploy
+    needs: Notify_Deploy_Start
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: docker://lambci/lambda:build-python3.8
+        with:
+          entrypoint: pip
+          args: install -r ${{ inputs.function_name }}/requirements.txt --target ${{ inputs.function_name }}
+      - name: Bundle function with dependencies
+        run: |
+          cd ${{ inputs.function_name }} ; zip -r ../build.zip . *
+      - name: Deploy Staging
+        uses: appleboy/lambda-action@v0.1.9
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.SEATED_AWS_PRIMARY_REGION }}
+          function_name: ${{ inputs.function_name }}-staging
+          zip_file: build.zip
+
+  Notify_Deploy_Success:
+    name: Alert Success
+    needs: [ Notify_Deploy_Start, Deploy_Production, Deploy_Staging ]
+    if: |
+      always()
+      && contains(needs.*.result, 'success')
+      && !contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: ${{ github.ref == 'refs/heads/release' && 'C01C6DHGQUX' || 'C01D610KAAX' }}
+          update-ts: ${{ needs.Notify_Deploy_Start.outputs.slack_ts }}
+          payload: |
+            {
+            	"attachments": [
+                  {
+                    "color": "#C0C0C0",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "*@${{github.actor}}* triggered new <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*deployment*> on :lambda_2: <https://github.com/${{github.repository}}|*${{ inputs.function_name }}*>"
+                              }
+                          ]
+                      },
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "Built <https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}|*${{inputs.function_name}}*> successfully. :white_check_mark: Waiting for *deployment*"
+                              }
+                          ]
+                      }
+            	    ]
+                  },
+                  {
+                    "color": "#008000",
+                    "blocks": [
+                      {
+                          "type": "context",
+                          "elements": [
+                              {
+                                  "type": "image",
+                                  "image_url": "https://avatars.githubusercontent.com/u/${{github.actor_id}}",
+                                  "alt_text": "avatar"
+                              },
+                              {
+                                  "type": "mrkdwn",
+                                  "text": "*${{ github.ref == 'refs/heads/release' && 'Production' || 'Staging' }}* deployment *succeeded* in <https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/${{inputs.function_name}}${{ github.ref == 'refs/heads/release' && '' || '-staging' }}?tab=code|*Primary*> region :confetti_ball:"
+                              }
+                          ]
+                      }
+            	    ]
+                  }
+                ]
+            }
